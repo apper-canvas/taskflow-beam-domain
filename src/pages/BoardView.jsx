@@ -171,5 +171,6 @@ function BoardView({ darkMode, setDarkMode }) {
       </div>
     </div>
   );
+}
 
 export default BoardView;
