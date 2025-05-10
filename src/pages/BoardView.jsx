@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
+import { DragDropContext } from 'react-beautiful-dnd';
 import { toast } from 'react-toastify';
 import getIcon from '../utils/iconUtils';
 import Column from '../components/Column';
@@ -85,6 +86,41 @@ function BoardView({ darkMode, setDarkMode }) {
     }
   };
 
+  const handleDragEnd = (result) => {
+    const { destination, source, draggableId } = result;
+    
+    // If there's no destination or the item was dropped back in the same place
+    if (!destination || 
+        (destination.droppableId === source.droppableId && 
+         destination.index === source.index)) {
+      return;
+    }
+    
+    // Find the task that was dragged
+    const task = tasks.find(t => t.id === draggableId);
+    
+    // Create a new array of tasks
+    const newTasks = tasks.filter(t => t.id !== draggableId);
+    
+    // Create an updated task with the new columnId if it changed
+    const updatedTask = {
+      ...task,
+      columnId: destination.droppableId
+    };
+    
+    // Insert the task at the new position
+    newTasks.splice(destination.index, 0, updatedTask);
+    
+    // Update the order of tasks in the affected columns
+    const finalTasks = newTasks.map((t, index, arr) => {
+      const tasksInSameColumn = arr.filter(task => task.columnId === t.columnId);
+      const orderInColumn = tasksInSameColumn.findIndex(task => task.id === t.id);
+      return { ...t, order: orderInColumn };
+    });
+    
+    setTasks(finalTasks);
+  };
+
   if (!board) {
     return (
       <div className="flex items-center justify-center h-screen">
@@ -155,14 +191,17 @@ function BoardView({ darkMode, setDarkMode }) {
       {/* Board Content */}
       <div className="container mx-auto px-4 py-6">
         <div className="flex space-x-4 overflow-x-auto pb-4 scrollbar-thin">
-          {columns.map(column => (
-            <Column 
-              key={column.id}
-              column={column}
-              tasks={tasks.filter(task => task.columnId === column.id)}
-              setTasks={setTasks}
-            />
-          ))}
+          <DragDropContext onDragEnd={handleDragEnd}>
+            {columns.map(column => (
+              <Column 
+                key={column.id}
+                column={column}
+                tasks={tasks.filter(task => task.columnId === column.id)
+                  .sort((a, b) => a.order - b.order)}
+                setTasks={setTasks}
+              />
+            ))}
+          </DragDropContext>
           
           <button 
             onClick={() => setIsAddingColumn(true)}

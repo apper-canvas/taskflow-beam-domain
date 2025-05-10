@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import { motion } from 'framer-motion';
+import { Droppable } from 'react-beautiful-dnd';
 import { toast } from 'react-toastify';
 import getIcon from '../utils/iconUtils';
 import Task from './Task';
@@ -61,15 +62,22 @@ function Column({ column, tasks, setTasks }) {
       </div>
       
       {/* Tasks */}
-      <div className="flex-1 overflow-y-auto p-2 scrollbar-thin">
-        {tasks.map(task => (
-          <Task key={task.id} task={task} />
-        ))}
+      <Droppable droppableId={column.id}>
+        {(provided, snapshot) => (
+          <div 
+            className={`flex-1 overflow-y-auto p-2 scrollbar-thin ${snapshot.isDraggingOver ? 'bg-surface-200 dark:bg-surface-700' : ''}`}
+            ref={provided.innerRef}
+            {...provided.droppableProps}
+          >
+            {tasks.map((task, index) => (
+              <Task key={task.id} task={task} index={index} />
+            ))}
+            {provided.placeholder}
         
-        {isAddingTask ? (
-          <form onSubmit={handleAddTask} className="mt-2 bg-white dark:bg-surface-700 p-3 rounded-lg shadow-soft">
-            <h4 className="font-medium text-surface-800 dark:text-surface-100 mb-3">Add New Task</h4>
-            
+            {isAddingTask ? (
+              <form onSubmit={handleAddTask} className="mt-2 bg-white dark:bg-surface-700 p-3 rounded-lg shadow-soft">
+                <h4 className="font-medium text-surface-800 dark:text-surface-100 mb-3">Add New Task</h4>
+                
             <div className="space-y-3">
               {/* Task Title */}
               <div>
@@ -163,14 +171,16 @@ function Column({ column, tasks, setTasks }) {
               <button type="submit" className="btn btn-primary">Add Task</button>
               <button type="button" className="btn btn-outline" onClick={() => setIsAddingTask(false)}>Cancel</button>
             </div>
-          </form>
-        ) : (
-          <button onClick={() => setIsAddingTask(true)} className="w-full mt-2 py-2 px-3 text-left text-sm text-surface-500 hover:text-surface-700 dark:hover:text-surface-300 hover:bg-surface-100 dark:hover:bg-surface-700 rounded flex items-center">
-            <PlusIcon size={16} className="mr-2" />
-            <span>Add a task</span>
-          </button>
+              </form>
+            ) : (
+              <button onClick={() => setIsAddingTask(true)} className="w-full mt-2 py-2 px-3 text-left text-sm text-surface-500 hover:text-surface-700 dark:hover:text-surface-300 hover:bg-surface-100 dark:hover:bg-surface-700 rounded flex items-center">
+                <PlusIcon size={16} className="mr-2" />
+                <span>Add a task</span>
+              </button>
+            )}
+          </div>
         )}
-      </div>
+      </Droppable>
     </div>
   );
 }
