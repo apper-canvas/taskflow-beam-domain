@@ -1,0 +1,106 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@import 'react-toastify/dist/ReactToastify.css';
+
+@layer base {
+  html {
+    @apply antialiased text-base;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+  }
+  
+  body {
+    @apply font-sans leading-normal m-0 p-0 transition-colors duration-200;
+  }
+  
+  h1, h2, h3, h4, h5, h6 {
+    @apply font-heading font-semibold leading-tight;
+  }
+  
+  h1 {
+    @apply text-3xl md:text-4xl lg:text-5xl mb-6;
+  }
+  
+  h2 {
+    @apply text-2xl md:text-3xl lg:text-4xl mb-5;
+  }
+  
+  h3 {
+    @apply text-xl md:text-2xl lg:text-3xl mb-4;
+  }
+  
+  p {
+    @apply mb-4;
+  }
+}
+
+@layer components {
+  .btn {
+    @apply inline-flex items-center justify-center rounded-lg px-4 py-2 text-sm font-medium transition-colors
+    focus:outline-none focus:ring-2 focus:ring-offset-2 disabled:opacity-50 disabled:pointer-events-none;
+  }
+  
+  .btn-primary {
+    @apply bg-primary text-white hover:bg-primary-dark focus:ring-primary;
+  }
+  
+  .btn-secondary {
+    @apply bg-secondary text-white hover:bg-secondary-dark focus:ring-secondary;
+  }
+  
+  .btn-outline {
+    @apply border border-surface-300 dark:border-surface-700 hover:bg-surface-100 dark:hover:bg-surface-800
+    text-surface-800 dark:text-surface-100 focus:ring-surface-300 dark:focus:ring-surface-700;
+  }
+  
+  .card {
+    @apply bg-white dark:bg-surface-800 rounded-xl shadow-card p-4 md:p-6;
+  }
+  
+  .input {
+    @apply w-full px-3 py-2 rounded-lg border border-surface-300 dark:border-surface-700
+    bg-white dark:bg-surface-800 text-surface-800 dark:text-surface-100
+    focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent
+    placeholder:text-surface-400 dark:placeholder:text-surface-500;
+  }
+  
+  .board-column {
+    @apply flex-shrink-0 w-[280px] md:w-[320px] bg-surface-100 dark:bg-surface-800 rounded-lg shadow-card
+    overflow-hidden flex flex-col max-h-[calc(100vh-160px)];
+  }
+  
+  .task-card {
+    @apply bg-white dark:bg-surface-700 p-3 rounded-lg shadow-soft mb-2
+    border border-surface-200 dark:border-surface-600 cursor-pointer
+    hover:shadow-md transition-shadow;
+  }
+}
+
+@layer utilities {
+  .scrollbar-hide {
+    -ms-overflow-style: none;
+    scrollbar-width: none;
+  }
+  .scrollbar-hide::-webkit-scrollbar {
+    display: none;
+  }
+  
+  .scrollbar-thin {
+    scrollbar-width: thin;
+  }
+  
+  .scrollbar-thin::-webkit-scrollbar {
+    width: 5px;
+    height: 5px;
+  }
+  
+  .scrollbar-thin::-webkit-scrollbar-track {
+    @apply bg-transparent;
+  }
+  
+  .scrollbar-thin::-webkit-scrollbar-thumb {
+    @apply bg-surface-300 dark:bg-surface-600 rounded-full;
+  }
+}
