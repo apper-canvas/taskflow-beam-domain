@@ -169,6 +169,8 @@ function BoardView({ darkMode, setDarkMode }) {
           newColumnTitle={newColumnTitle}
           setNewColumnTitle={setNewColumnTitle}
         />
+      </div>
+    </div>
   );
 }
 
