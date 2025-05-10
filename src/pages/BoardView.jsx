@@ -1,10 +1,10 @@
 import { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
-import { DragDropContext } from 'react-beautiful-dnd';
 import { toast } from 'react-toastify';
 import getIcon from '../utils/iconUtils';
-import Column from '../components/Column';
+import KanbanBoard from '../components/KanbanBoard';
+
 
 function BoardView({ darkMode, setDarkMode }) {
   const { boardId } = useParams();
@@ -85,65 +85,11 @@ function BoardView({ darkMode, setDarkMode }) {
       toast.success('Column added successfully');
     }
   };
-
-  const handleDragEnd = (result) => {
-    const { destination, source, draggableId } = result;
-    
-    // If there's no destination or it's dropped in the same spot
-    if (!destination || 
-        (destination.droppableId === source.droppableId && 
-         destination.index === source.index)) {
-      return;
-    }
-    
-    // Create a deep copy of current tasks
-    const updatedTasks = JSON.parse(JSON.stringify(tasks));
-    const movedTask = updatedTasks.find(task => task.id === draggableId);
-
-    if (!movedTask) {
-      return;
-    }
-
-    // Remove the task from its current position
-    const filteredTasks = updatedTasks.filter(task => task.id !== draggableId);
-
-    // Update the task's column if it changed
-    if (source.droppableId !== destination.droppableId) {
-      movedTask.columnId = destination.droppableId;
-    }
-
-    // Re-insert the task at its new position
-    filteredTasks.splice(
-      filteredTasks.findIndex(t => 
-        t.columnId === destination.droppableId && 
-        t.order >= destination.index
-      ) || filteredTasks.length,
-      0,
-      movedTask
-    );
-
-    // Update order values for all tasks
-    if (source.droppableId === destination.droppableId) {
-      // Only update tasks in the same column
-      const columnTasks = filteredTasks.filter(task => task.columnId === destination.droppableId);
-      columnTasks.sort((a, b) => a.order - b.order);
-      columnTasks.forEach((task, idx) => { task.order = idx; });
-    } else {
-      // Update tasks in both source and destination columns
-      const sourceColumnTasks = filteredTasks.filter(task => task.columnId === source.droppableId);
-      const destColumnTasks = filteredTasks.filter(task => task.columnId === destination.droppableId);
-      
-      sourceColumnTasks.sort((a, b) => a.order - b.order);
-      destColumnTasks.sort((a, b) => a.order - b.order);
-      
-      sourceColumnTasks.forEach((task, idx) => { task.order = idx; });
-      destColumnTasks.forEach((task, idx) => { task.order = idx; });
-    }
-    
-    // Update the state with the new tasks
-    setTasks(filteredTasks);
+  
+  const handleTasksUpdate = (updatedTasks) => {
+    setTasks(updatedTasks);
   };
-
+  
   if (!board) {
     return (
       <div className="flex items-center justify-center h-screen">
@@ -213,29 +159,17 @@ function BoardView({ darkMode, setDarkMode }) {
       
       {/* Board Content */}
       <div className="container mx-auto px-4 py-6">
-        <div className="flex space-x-4 overflow-x-auto pb-4 scrollbar-thin">
-          <DragDropContext onDragEnd={handleDragEnd}>
-            {columns.map(column => (
-              <Column 
-                key={column.id}
-                column={column}
-                tasks={tasks.filter(task => task.columnId === column.id)
-                  .sort((a, b) => a.order - b.order)}
-                setTasks={setTasks}
-              />
-            ))}
-          </DragDropContext>
-          
-          <button 
-            onClick={() => setIsAddingColumn(true)}
-            className="flex-shrink-0 w-[280px] md:w-[320px] h-12 flex items-center justify-center bg-surface-100 dark:bg-surface-800 bg-opacity-80 hover:bg-opacity-100 rounded-lg border-2 border-dashed border-surface-300 dark:border-surface-700"
-          >
-            <PlusIcon size={20} className="mr-2" />
-            <span>Add Another Column</span>
-          </button>
+        <KanbanBoard 
+          columns={columns}
+          tasks={tasks}
+          onTasksUpdate={handleTasksUpdate}
+          onAddColumn={handleAddColumn}
+          isAddingColumn={isAddingColumn}
+          setIsAddingColumn={setIsAddingColumn}
+          newColumnTitle={newColumnTitle}
+          setNewColumnTitle={setNewColumnTitle}
+        />
         </div>
-      </div>
-    </div>
   );
 }
 

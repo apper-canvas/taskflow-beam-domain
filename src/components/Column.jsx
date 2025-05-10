@@ -68,7 +68,7 @@ function Column({ column, tasks, setTasks }) {
             className={`flex-1 overflow-y-auto p-2 scrollbar-thin h-full ${snapshot.isDraggingOver ? 'bg-surface-200 dark:bg-surface-700' : ''}`}
             ref={provided.innerRef}
             {...provided.droppableProps}
-          >
+           >
             {tasks.map((task, index) => (
               <Task key={task.id} task={task} index={index} />
             ))}
