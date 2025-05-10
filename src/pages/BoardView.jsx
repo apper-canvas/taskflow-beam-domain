@@ -87,38 +87,76 @@ function BoardView({ darkMode, setDarkMode }) {
   };
 
   const handleDragEnd = (result) => {
-    const { destination, source, draggableId } = result;
+    const { destination, source, draggableId, type } = result;
     
-    // If there's no destination or the item was dropped back in the same place
+    // If no destination or dropped in the same position
     if (!destination || 
         (destination.droppableId === source.droppableId && 
          destination.index === source.index)) {
       return;
     }
     
-    // Find the task that was dragged
-    const task = tasks.find(t => t.id === draggableId);
+    // Handle task movement
+    const tasksCopy = [...tasks];
+    const movedTask = tasksCopy.find(task => task.id === draggableId);
     
-    // Create a new array of tasks
-    const newTasks = tasks.filter(t => t.id !== draggableId);
+    if (!movedTask) return;
     
-    // Create an updated task with the new columnId if it changed
-    const updatedTask = {
-      ...task,
-      columnId: destination.droppableId
-    };
-    
-    // Insert the task at the new position
-    newTasks.splice(destination.index, 0, updatedTask);
-    
-    // Update the order of tasks in the affected columns
-    const finalTasks = newTasks.map((t, index, arr) => {
-      const tasksInSameColumn = arr.filter(task => task.columnId === t.columnId);
-      const orderInColumn = tasksInSameColumn.findIndex(task => task.id === t.id);
-      return { ...t, order: orderInColumn };
-    });
-    
-    setTasks(finalTasks);
+    // Same column reordering
+    if (source.droppableId === destination.droppableId) {
+      const columnTasks = tasksCopy.filter(task => task.columnId === source.droppableId);
+      
+      // Remove the task from its position
+      const [removed] = columnTasks.splice(source.index, 1);
+      
+      // Insert it at the new position
+      columnTasks.splice(destination.index, 0, removed);
+      
+      // Update order values
+      columnTasks.forEach((task, index) => {
+        task.order = index;
+      });
+      
+      // Merge back with tasks from other columns
+      const otherTasks = tasksCopy.filter(task => task.columnId !== source.droppableId);
+      
+      setTasks([...otherTasks, ...columnTasks]);
+    } 
+    // Moving between columns
+    else {
+      // Get tasks from source column
+      const sourceColumnTasks = tasksCopy.filter(task => task.columnId === source.droppableId);
+      
+      // Remove task from source column tasks
+      const [removed] = sourceColumnTasks.splice(source.index, 1);
+      
+      // Update source column task orders
+      sourceColumnTasks.forEach((task, index) => {
+        task.order = index;
+      });
+      
+      // Get tasks from destination column
+      const destinationColumnTasks = tasksCopy.filter(task => task.columnId === destination.droppableId);
+      
+      // Create updated task with new column ID
+      const updatedTask = {
+        ...removed,
+        columnId: destination.droppableId
+      };
+      
+      // Insert task at new position in destination column
+      destinationColumnTasks.splice(destination.index, 0, updatedTask);
+      
+      // Update destination column task orders
+      destinationColumnTasks.forEach((task, index) => {
+        task.order = index;
+      });
+      
+      // Get tasks from other columns that weren't affected
+      const otherTasks = tasksCopy.filter(task => task.columnId !== source.droppableId && task.columnId !== destination.droppableId);
+      
+      setTasks([...otherTasks, ...sourceColumnTasks, ...destinationColumnTasks]);
+    }
   };
 
   if (!board) {
