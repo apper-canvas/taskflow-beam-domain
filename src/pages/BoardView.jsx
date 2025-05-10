@@ -87,76 +87,61 @@ function BoardView({ darkMode, setDarkMode }) {
   };
 
   const handleDragEnd = (result) => {
-    const { destination, source, draggableId, type } = result;
+    const { destination, source, draggableId } = result;
     
-    // If no destination or dropped in the same position
+    // If there's no destination or it's dropped in the same spot
     if (!destination || 
         (destination.droppableId === source.droppableId && 
          destination.index === source.index)) {
       return;
     }
     
-    // Handle task movement
-    const tasksCopy = [...tasks];
-    const movedTask = tasksCopy.find(task => task.id === draggableId);
-    
-    if (!movedTask) return;
-    
-    // Same column reordering
-    if (source.droppableId === destination.droppableId) {
-      const columnTasks = tasksCopy.filter(task => task.columnId === source.droppableId);
-      
-      // Remove the task from its position
-      const [removed] = columnTasks.splice(source.index, 1);
-      
-      // Insert it at the new position
-      columnTasks.splice(destination.index, 0, removed);
-      
-      // Update order values
-      columnTasks.forEach((task, index) => {
-        task.order = index;
-      });
-      
-      // Merge back with tasks from other columns
-      const otherTasks = tasksCopy.filter(task => task.columnId !== source.droppableId);
-      
-      setTasks([...otherTasks, ...columnTasks]);
-    } 
-    // Moving between columns
-    else {
-      // Get tasks from source column
-      const sourceColumnTasks = tasksCopy.filter(task => task.columnId === source.droppableId);
-      
-      // Remove task from source column tasks
-      const [removed] = sourceColumnTasks.splice(source.index, 1);
-      
-      // Update source column task orders
-      sourceColumnTasks.forEach((task, index) => {
-        task.order = index;
-      });
-      
-      // Get tasks from destination column
-      const destinationColumnTasks = tasksCopy.filter(task => task.columnId === destination.droppableId);
-      
-      // Create updated task with new column ID
-      const updatedTask = {
-        ...removed,
-        columnId: destination.droppableId
-      };
-      
-      // Insert task at new position in destination column
-      destinationColumnTasks.splice(destination.index, 0, updatedTask);
-      
-      // Update destination column task orders
-      destinationColumnTasks.forEach((task, index) => {
-        task.order = index;
-      });
-      
-      // Get tasks from other columns that weren't affected
-      const otherTasks = tasksCopy.filter(task => task.columnId !== source.droppableId && task.columnId !== destination.droppableId);
-      
-      setTasks([...otherTasks, ...sourceColumnTasks, ...destinationColumnTasks]);
+    // Create a deep copy of current tasks
+    const updatedTasks = JSON.parse(JSON.stringify(tasks));
+    const movedTask = updatedTasks.find(task => task.id === draggableId);
+
+    if (!movedTask) {
+      return;
     }
+
+    // Remove the task from its current position
+    const filteredTasks = updatedTasks.filter(task => task.id !== draggableId);
+
+    // Update the task's column if it changed
+    if (source.droppableId !== destination.droppableId) {
+      movedTask.columnId = destination.droppableId;
+    }
+
+    // Re-insert the task at its new position
+    filteredTasks.splice(
+      filteredTasks.findIndex(t => 
+        t.columnId === destination.droppableId && 
+        t.order >= destination.index
+      ) || filteredTasks.length,
+      0,
+      movedTask
+    );
+
+    // Update order values for all tasks
+    if (source.droppableId === destination.droppableId) {
+      // Only update tasks in the same column
+      const columnTasks = filteredTasks.filter(task => task.columnId === destination.droppableId);
+      columnTasks.sort((a, b) => a.order - b.order);
+      columnTasks.forEach((task, idx) => { task.order = idx; });
+    } else {
+      // Update tasks in both source and destination columns
+      const sourceColumnTasks = filteredTasks.filter(task => task.columnId === source.droppableId);
+      const destColumnTasks = filteredTasks.filter(task => task.columnId === destination.droppableId);
+      
+      sourceColumnTasks.sort((a, b) => a.order - b.order);
+      destColumnTasks.sort((a, b) => a.order - b.order);
+      
+      sourceColumnTasks.forEach((task, idx) => { task.order = idx; });
+      destColumnTasks.forEach((task, idx) => { task.order = idx; });
+    }
+    
+    // Update the state with the new tasks
+    setTasks(filteredTasks);
   };
 
   if (!board) {

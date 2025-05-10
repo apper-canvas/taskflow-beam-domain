@@ -52,7 +52,7 @@ function Column({ column, tasks, setTasks }) {
   };
 
   return (
-    <div className="board-column">
+    <div className="board-column flex-shrink-0">
       {/* Column Header */}
       <div className="p-3 border-b border-surface-200 dark:border-surface-700 flex items-center justify-between">
         <h3 className="font-medium text-surface-800 dark:text-surface-100">{column.title}</h3>
@@ -65,7 +65,7 @@ function Column({ column, tasks, setTasks }) {
       <Droppable droppableId={column.id}>
         {(provided, snapshot) => (
           <div 
-            className={`flex-1 overflow-y-auto p-2 scrollbar-thin ${snapshot.isDraggingOver ? 'bg-surface-200 dark:bg-surface-700' : ''}`}
+            className={`flex-1 overflow-y-auto p-2 scrollbar-thin h-full ${snapshot.isDraggingOver ? 'bg-surface-200 dark:bg-surface-700' : ''}`}
             ref={provided.innerRef}
             {...provided.droppableProps}
           >
