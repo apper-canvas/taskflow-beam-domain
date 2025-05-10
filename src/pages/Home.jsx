@@ -3,6 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import { toast } from 'react-toastify';
 import MainFeature from '../components/MainFeature';
+import KanbanBoard from '../components/view/KanbanBoard';
 import getIcon from '../utils/iconUtils';
 
 function Home({ darkMode, setDarkMode }) {  
@@ -11,6 +12,21 @@ function Home({ darkMode, setDarkMode }) {
       { id: '1', title: 'Product Roadmap', background: 'bg-gradient-to-r from-purple-500 to-indigo-600' },
       { id: '2', title: 'Marketing Campaign', background: 'bg-gradient-to-r from-blue-500 to-cyan-500' },
       { id: '3', title: 'Design Sprints', background: 'bg-gradient-to-r from-emerald-500 to-green-500' },
+    ]
+  );
+  
+  // Kanban board state
+  const [columns, setColumns] = useState(
+    JSON.parse(localStorage.getItem('columns')) || [
+      { id: 'column-1', title: 'To Do' },
+      { id: 'column-2', title: 'In Progress' },
+      { id: 'column-3', title: 'Done' }
+    ]
+  );
+  
+  const [tasks, setTasks] = useState(
+    JSON.parse(localStorage.getItem('tasks')) || [
+      // Sample tasks can be placed here
     ]
   );
   const [newBoardTitle, setNewBoardTitle] = useState('');
@@ -31,6 +47,13 @@ function Home({ darkMode, setDarkMode }) {
   useEffect(() => {
     localStorage.setItem('boards', JSON.stringify(boards));
   }, [boards]);
+  
+  // Save Kanban state to localStorage
+  useEffect(() => {
+    localStorage.setItem('columns', JSON.stringify(columns));
+    localStorage.setItem('tasks', JSON.stringify(tasks));
+  }, [columns, tasks]);
+  
   
   const handleCreateBoard = (e) => {
     e.preventDefault();
@@ -137,6 +160,19 @@ function Home({ darkMode, setDarkMode }) {
                 </div>
               </motion.div>
             ))}
+          </div>
+        </div>
+        
+        {/* Kanban Board */}
+        <div className="mb-8">
+          <div className="flex items-center justify-between mb-6">
+            <h2 className="text-2xl font-bold mb-0">Quick Tasks</h2>
+          </div>
+          <div className="overflow-hidden">
+            <KanbanBoard 
+              columns={columns} 
+              tasks={tasks} 
+              setTasks={setTasks} />
           </div>
         </div>
         
