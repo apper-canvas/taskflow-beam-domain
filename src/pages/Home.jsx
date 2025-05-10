@@ -1,10 +1,11 @@
 import { useState, useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import { toast } from 'react-toastify';
 import MainFeature from '../components/MainFeature';
 import getIcon from '../utils/iconUtils';
 
-function Home({ darkMode, setDarkMode }) {
+function Home({ darkMode, setDarkMode }) {  
   const [boards, setBoards] = useState(
     JSON.parse(localStorage.getItem('boards')) || [
       { id: '1', title: 'Product Roadmap', background: 'bg-gradient-to-r from-purple-500 to-indigo-600' },
@@ -14,6 +15,7 @@ function Home({ darkMode, setDarkMode }) {
   );
   const [newBoardTitle, setNewBoardTitle] = useState('');
   const [isCreatingBoard, setIsCreatingBoard] = useState(false);
+  const navigate = useNavigate();
   
   // Define all icons
   const MoonIcon = getIcon('Moon');
@@ -54,11 +56,8 @@ function Home({ darkMode, setDarkMode }) {
     }
   };
   
-  const handleBoardSelect = (boardId) => {
-    const selectedBoard = boards.find(board => board.id === boardId);
-    if (selectedBoard) {
-      toast.info(`Board "${selectedBoard.title}" selected`);
-    }
+  const handleBoardSelect = (boardId) => {    
+    navigate(`/board/${boardId}`);
   };
 
   return (
