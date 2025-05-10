@@ -2,7 +2,7 @@ import { motion } from 'framer-motion';
 import { Draggable } from 'react-beautiful-dnd';
 import getIcon from '../utils/iconUtils';
 
-function Task({ task, index }) {
+function Task({ task, index, onClick }) {
   // Icons
   const Calendar = getIcon('Calendar');
   const AlertCircle = getIcon('AlertCircle');
@@ -13,6 +13,10 @@ function Task({ task, index }) {
     low: "bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-300",
     medium: "bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-300",
     high: "bg-red-100 text-red-800 dark:bg-red-900 dark:text-red-300"
+  };
+  
+  const handleClick = () => {
+    if (onClick) onClick(task);
   };
 
   return (
@@ -26,6 +30,7 @@ function Task({ task, index }) {
           initial={{ opacity: 0, y: 10 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.2 }}
+          onClick={handleClick}
         >
           <h4 className="font-medium text-surface-800 dark:text-white text-xs mb-1">{task.title}</h4>
           {task.description && <p className="text-surface-600 dark:text-surface-400 text-xs mb-2 line-clamp-2">{task.description}</p>}

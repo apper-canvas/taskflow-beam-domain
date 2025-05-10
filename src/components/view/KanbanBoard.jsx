@@ -2,7 +2,7 @@ import { useState } from 'react';
 import { DragDropContext, Droppable } from 'react-beautiful-dnd';
 import Column from '../Column';
 
-function KanbanBoard({ columns = [], tasks = [], setTasks, onDragEnd }) {
+function KanbanBoard({ columns = [], tasks = [], setTasks, onDragEnd, onTaskClick }) {
   // Handle drag and drop if no external handler is provided
   const handleDragEnd = (result) => {
     if (!onDragEnd) {
@@ -64,6 +64,7 @@ function KanbanBoard({ columns = [], tasks = [], setTasks, onDragEnd }) {
                   index={index} 
                   setTasks={setTasks}
                   allTasks={tasks}
+                  onTaskClick={onTaskClick}
                 />
               );
             })}

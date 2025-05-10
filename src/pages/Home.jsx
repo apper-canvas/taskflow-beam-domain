@@ -32,6 +32,7 @@ function Home({ darkMode, setDarkMode }) {
   const [newBoardTitle, setNewBoardTitle] = useState('');
   const [isCreatingBoard, setIsCreatingBoard] = useState(false);
   const navigate = useNavigate();
+  const [selectedTask, setSelectedTask] = useState(null);
   
   // Define all icons
   const MoonIcon = getIcon('Moon');
@@ -43,6 +44,7 @@ function Home({ darkMode, setDarkMode }) {
   const LogOutIcon = getIcon('LogOut');
   const UserIcon = getIcon('User');
   const CheckIcon = getIcon('Check');
+  const XIcon = getIcon('X');
   
   useEffect(() => {
     localStorage.setItem('boards', JSON.stringify(boards));
@@ -81,6 +83,10 @@ function Home({ darkMode, setDarkMode }) {
   
   const handleBoardSelect = (boardId) => {    
     navigate(`/board/${boardId}`);
+  };
+  
+  const handleTaskClick = (task) => {
+    setSelectedTask(task);
   };
 
   return (
@@ -172,7 +178,8 @@ function Home({ darkMode, setDarkMode }) {
             <KanbanBoard 
               columns={columns} 
               tasks={tasks} 
-              setTasks={setTasks} />
+              setTasks={setTasks}
+              onTaskClick={handleTaskClick} />
           </div>
         </div>
         
@@ -226,6 +233,47 @@ function Home({ darkMode, setDarkMode }) {
                   </button>
                 </div>
               </form>
+            </motion.div>
+          </div>
+        )}
+        
+        {/* Task Detail Modal */}
+        {selectedTask && (
+          <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+            <motion.div
+              initial={{ scale: 0.9, opacity: 0 }}
+              animate={{ scale: 1, opacity: 1 }}
+              className="bg-white dark:bg-surface-800 rounded-xl p-6 w-full max-w-md shadow-xl"
+            >
+              <div className="flex justify-between items-center mb-4">
+                <h3 className="text-xl font-bold">{selectedTask.title}</h3>
+                <button 
+                  className="p-1 rounded-full hover:bg-surface-100 dark:hover:bg-surface-700" 
+                  onClick={() => setSelectedTask(null)}
+                >
+                  <XIcon size={20} />
+                </button>
+              </div>
+              
+              <div className="mb-4">
+                <p className="text-surface-600 dark:text-surface-400">{selectedTask.description || "No description provided."}</p>
+              </div>
+              
+              <div className="flex flex-wrap gap-2 mb-4">
+                {selectedTask.priority && (
+                  <span className={`px-2 py-1 rounded-full text-xs ${
+                    selectedTask.priority === 'high' ? 'bg-red-100 text-red-800 dark:bg-red-900 dark:text-red-300' :
+                    selectedTask.priority === 'medium' ? 'bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-300' :
+                    'bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-300'
+                  }`}>
+                    {selectedTask.priority}
+                  </span>
+                )}
+              </div>
+              
+              <div className="flex justify-end">
+                <button className="btn btn-outline" onClick={() => setSelectedTask(null)}>Close</button>
+              </div>
             </motion.div>
           </div>
         )}
