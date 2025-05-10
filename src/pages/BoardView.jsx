@@ -5,7 +5,6 @@ import { toast } from 'react-toastify';
 import getIcon from '../utils/iconUtils';
 import KanbanBoard from '../components/KanbanBoard';
 
-
 function BoardView({ darkMode, setDarkMode }) {
   const { boardId } = useParams();
   const navigate = useNavigate();
@@ -168,7 +167,7 @@ function BoardView({ darkMode, setDarkMode }) {
           setIsAddingColumn={setIsAddingColumn}
           newColumnTitle={newColumnTitle}
           setNewColumnTitle={setNewColumnTitle}
-        />
+          setNewColumnTitle={setNewColumnTitle} 
       </div>
     </div>
   );

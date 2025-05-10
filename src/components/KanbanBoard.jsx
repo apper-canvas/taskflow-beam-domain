@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { DragDropContext } from 'react-beautiful-dnd';
+import { DragDropContext, Droppable } from 'react-beautiful-dnd';
 import { toast } from 'react-toastify';
 import getIcon from '../utils/iconUtils';
 import Column from './Column';
@@ -45,12 +45,12 @@ function KanbanBoard({
     if (!task) return;
     
     // Create a new tasks array to avoid mutating the original
-    const updatedTasks = [...tasks];
+    const updatedTasks = tasks.map(t => ({ ...t }));
     
     // Create an array of tasks in the source column
     const sourceColumnTasks = updatedTasks
       .filter(t => t.columnId === source.droppableId)
-      .sort((a, b) => a.order - b.order);
+      .sort((a, b) => (a.order || 0) - (b.order || 0));
     
     // Create an array of tasks in the destination column
     const destinationColumnTasks = source.droppableId === destination.droppableId
@@ -97,33 +97,54 @@ function KanbanBoard({
   };
 
   return (
-    <div className="flex space-x-4 overflow-x-auto pb-4 scrollbar-thin">
-      <DragDropContext onDragEnd={handleDragEnd}>
-        {columns.map(column => (
-          <Column 
-            key={column.id}
-            column={column}
-            tasks={tasks.filter(task => task.columnId === column.id)
-              .sort((a, b) => a.order - b.order)}
-            setTasks={onTasksUpdate}
-          />
-        ))}
-      </DragDropContext>
-      
-      {isAddingColumnState ? (
-        <form onSubmit={handleAddColumnInternal} className="flex-shrink-0 w-[280px] md:w-[320px] bg-white dark:bg-surface-800 rounded-lg shadow-card p-3">
-          <input type="text" className="input mb-3" placeholder="Enter column title..." value={newColumnTitleState} onChange={(e) => setNewColumnTitleState(e.target.value)} autoFocus />
-          <div className="flex space-x-2">
-            <button type="submit" className="btn btn-primary"><CheckIcon size={16} className="mr-1" /> Add</button>
-            <button type="button" className="btn btn-outline" onClick={() => setIsAddingColumnState(false)}><XIcon size={16} className="mr-1" /> Cancel</button>
-          </div>
-        </form>
-      ) : (
-        <button onClick={() => setIsAddingColumnState(true)} className="flex-shrink-0 w-[280px] md:w-[320px] h-12 flex items-center justify-center bg-surface-100 dark:bg-surface-800 bg-opacity-80 hover:bg-opacity-100 rounded-lg border-2 border-dashed border-surface-300 dark:border-surface-700">
-          <PlusIcon size={20} className="mr-2" />
-          <span>Add Another Column</span>
-        </button>
-      )}
+    <div className="h-full">
+      <div className="flex space-x-4 overflow-x-auto pb-4 scrollbar-thin h-full">
+        <DragDropContext onDragEnd={handleDragEnd}>
+          <Droppable droppableId="all-columns" direction="horizontal" type="column">
+            {(provided) => (
+              <div 
+                className="flex space-x-4" 
+                {...provided.droppableProps} 
+                ref={provided.innerRef}
+              >
+                {columns.map((column, index) => (
+                  <Column 
+                    key={column.id}
+                    column={column}
+                    tasks={tasks.filter(task => task.columnId === column.id)
+                      .sort((a, b) => (a.order || 0) - (b.order || 0))}
+                    setTasks={onTasksUpdate}
+                    index={index}
+                    allTasks={tasks}
+                  />
+                ))}
+                {provided.placeholder}
+              </div>
+            )}
+          </Droppable>
+        </DragDropContext>
+        
+        {isAddingColumnState ? (
+          <form onSubmit={handleAddColumnInternal} className="flex-shrink-0 w-[280px] md:w-[320px] bg-white dark:bg-surface-800 rounded-lg shadow-card p-3">
+            <input 
+              type="text" 
+              className="input mb-3" 
+              placeholder="Enter column title..." 
+              value={newColumnTitleState} 
+              onChange={(e) => setNewColumnTitleState(e.target.value)} 
+              autoFocus />
+            <div className="flex space-x-2">
+              <button type="submit" className="btn btn-primary" disabled={!newColumnTitleState.trim()}><CheckIcon size={16} className="mr-1" /> Add</button>
+              <button type="button" className="btn btn-outline" onClick={() => setIsAddingColumnState(false)}><XIcon size={16} className="mr-1" /> Cancel</button>
+            </div>
+          </form>
+        ) : (
+          <button onClick={() => setIsAddingColumnState(true)} className="flex-shrink-0 w-[280px] md:w-[320px] h-12 flex items-center justify-center bg-surface-100 dark:bg-surface-800 bg-opacity-80 hover:bg-opacity-100 rounded-lg border-2 border-dashed border-surface-300 dark:border-surface-700">
+            <PlusIcon size={20} className="mr-2" />
+            <span>Add Another Column</span>
+          </button>
+        )}
+      </div>
     </div>
   );
 }

@@ -1,8 +1,9 @@
 import { motion } from 'framer-motion';
 import { Draggable } from 'react-beautiful-dnd';
 import getIcon from '../utils/iconUtils';
+import { format } from 'date-fns';
 
-function Task({ task, index }) {
+function Task({ task, index, className = '' }) {
   // Icons
   const MessageSquareIcon = getIcon('MessageSquare');
   const PaperclipIcon = getIcon('Paperclip');
@@ -22,19 +23,19 @@ function Task({ task, index }) {
   };
 
   return (
-    <Draggable draggableId={task.id} index={index}>
+    <Draggable draggableId={task.id} index={index} type="task">
       {(provided, snapshot) => (
         <motion.div
           ref={provided.innerRef}
           {...provided.draggableProps}
           {...provided.dragHandleProps}
-          className={`task-card ${snapshot.isDragging ? 'shadow-lg' : ''}`}
+          className={`task-card ${snapshot.isDragging ? 'shadow-lg' : ''} ${className}`}
           style={{
             ...provided.draggableProps.style,
             transform: snapshot.isDragging
               ? provided.draggableProps.style.transform
-              : `translateY(0)` // Override framer-motion transform when dragging
-          }}
+              : 'translate(0, 0)'
+            }}
           whileHover={!snapshot.isDragging ? { y: -2, transition: { duration: 0.2 } } : {}}
         >
           <div className="flex flex-wrap gap-1 mb-2">
@@ -44,13 +45,21 @@ function Task({ task, index }) {
               </span>
             ))}
           </div>
-          <h4 className="font-medium text-surface-800 dark:text-surface-100 mb-2">{task.title}</h4>
+          {task.description && (
+            <p className="text-sm text-surface-600 dark:text-surface-400 mb-3 line-clamp-2">{task.description}</p>
+          )}
           {task.description && <p className="text-sm text-surface-600 dark:text-surface-400 mb-3">{task.description}</p>}
           <div className="flex items-center justify-between text-xs text-surface-500">
             <div className="flex items-center space-x-3">
               {commentCount > 0 && <span className="flex items-center"><MessageSquareIcon size={14} className="mr-1" /> {commentCount}</span>}
               {attachmentCount > 0 && <span className="flex items-center"><PaperclipIcon size={14} className="mr-1" /> {attachmentCount}</span>}
-            </div>
+            {task.dueDate && (
+              <div className="text-xs font-medium px-1.5 py-0.5 rounded bg-surface-100 dark:bg-surface-600">
+                {task.dueDate}
+              </div>
+            )}
+           </div>
+           {task.priority === 'high' && <div className="absolute top-0 right-0 w-2 h-2 rounded-full bg-red-500 mt-1 mr-1"></div>}
           </div>
         </motion.div>
       )}
