@@ -44,7 +44,6 @@ function Home({ darkMode, setDarkMode }) {
   const LogOutIcon = getIcon('LogOut');
   const UserIcon = getIcon('User');
   const CheckIcon = getIcon('Check');
-  const XIcon = getIcon('X');
   
   useEffect(() => {
     localStorage.setItem('boards', JSON.stringify(boards));
