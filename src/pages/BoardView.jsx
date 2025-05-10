@@ -3,16 +3,12 @@ import { useParams, useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import { toast } from 'react-toastify';
 import getIcon from '../utils/iconUtils';
-import KanbanBoard from '../components/KanbanBoard';
 
 function BoardView({ darkMode, setDarkMode }) {
   const { boardId } = useParams();
   const navigate = useNavigate();
   const [board, setBoard] = useState(null);
-  const [columns, setColumns] = useState([]);
-  const [tasks, setTasks] = useState([]);
-  const [newColumnTitle, setNewColumnTitle] = useState('');
-  const [isAddingColumn, setIsAddingColumn] = useState(false);
+
 
   // Define icons
   const MoonIcon = getIcon('Moon');
@@ -40,54 +36,10 @@ function BoardView({ darkMode, setDarkMode }) {
     setBoard(selectedBoard);
     
     // Load or initialize columns
-    const storedColumns = JSON.parse(localStorage.getItem(`columns_${boardId}`)) || [
-      { id: 'col1', boardId, title: 'To Do', order: 0 },
-      { id: 'col2', boardId, title: 'In Progress', order: 1 },
-      { id: 'col3', boardId, title: 'Done', order: 2 }
-    ];
-    
-    setColumns(storedColumns);
-    
-    // Load or initialize tasks
-    const storedTasks = JSON.parse(localStorage.getItem(`tasks_${boardId}`)) || [
-      { id: 'task1', columnId: 'col1', title: 'Research competitors', description: 'Analyze the top 5 competitors in the market', labels: ['research'], order: 0 },
-      { id: 'task2', columnId: 'col1', title: 'Create wireframes', description: 'Design initial wireframes for the homepage', labels: ['design'], order: 1 },
-      { id: 'task3', columnId: 'col2', title: 'Setup development environment', description: 'Install and configure required tools and dependencies', labels: ['dev'], order: 0 },
-      { id: 'task4', columnId: 'col3', title: 'Project kickoff meeting', description: 'Initial team meeting to discuss project goals and timeline', labels: ['meeting'], order: 0 }
-    ];
-    
-    setTasks(storedTasks);
   }, [boardId, navigate]);
   
-  useEffect(() => {
-    // Save columns and tasks to localStorage whenever they change
-    if (board) {
-      localStorage.setItem(`columns_${boardId}`, JSON.stringify(columns));
-      localStorage.setItem(`tasks_${boardId}`, JSON.stringify(tasks));
-    }
-  }, [columns, tasks, board, boardId]);
-  
-  const handleAddColumn = (e) => {
-    e.preventDefault();
-    
-    if (newColumnTitle.trim()) {
-      const newColumn = {
-        id: `col_${Date.now()}`,
-        boardId,
-        title: newColumnTitle.trim(),
-        order: columns.length
-      };
-      
-      setColumns([...columns, newColumn]);
-      setNewColumnTitle('');
-      setIsAddingColumn(false);
-      toast.success('Column added successfully');
-    }
-  };
-  
-  const handleTasksUpdate = (updatedTasks) => {
-    setTasks(updatedTasks);
-  };
+
+
   
   if (!board) {
     return (
@@ -158,19 +110,13 @@ function BoardView({ darkMode, setDarkMode }) {
       
       {/* Board Content */}
       <div className="container mx-auto px-4 py-6">
-        <KanbanBoard 
-          columns={columns}
-          tasks={tasks}
-          onTasksUpdate={handleTasksUpdate}
-          onAddColumn={handleAddColumn}
-          isAddingColumn={isAddingColumn}
-          setIsAddingColumn={setIsAddingColumn}
-          newColumnTitle={newColumnTitle}
-          setNewColumnTitle={setNewColumnTitle}
-        />
+        <div className="flex items-center justify-center h-64 bg-surface-100 dark:bg-surface-800 rounded-lg">
+          <p className="text-lg text-surface-600 dark:text-surface-400">Board content will be displayed here</p>
+        </div>
       </div>
     </div>
   );
 }
+
 
 export default BoardView;
